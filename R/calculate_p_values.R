@@ -10,20 +10,23 @@
 
 #' Function to calculate p-values between two feature sets using resamples
 #' @param data \code{data.frame} of raw classification accuracy results
-#' @param summary_data \code{data.frame} of best and worst results
 #' @param theproblem \code{string} specifying the name of the problem to calculate analyse
 #' @param problem_data \code{data.frame} contain problem summary information
 #' @returns object of class \code{data.frame}
 #' @author Trent Henderson
 #' 
 
-calculate_p_values <- function(data, summary_data, theproblem, problem_data){
-  
-  tmp_summ_data <- summary_data %>%
-    filter(problem == theproblem)
+calculate_p_values <- function(data, theproblem, problem_data){
   
   tmp_data <- data %>%
     filter(problem == theproblem)
+  
+  # Check for only 1 feature set present
+  
+  if(length(unique(tmp_data$method)) <= 1){
+    outs <- data.frame(problem = theproblem, statistic = NA, p.value = NA)
+    return(outs)
+  }
   
   # Check for 0 variance
   
@@ -35,11 +38,11 @@ calculate_p_values <- function(data, summary_data, theproblem, problem_data){
   # Set up vectors
   
   x <- tmp_data %>%
-    filter(method == tmp_summ_data$best_method) %>%
+    filter(method == "Mean and variance") %>%
     pull(balanced_accuracy)
   
   y <- tmp_data %>%
-    filter(method == tmp_summ_data$worst_method) %>%
+    filter(method == "catch24") %>%
     pull(balanced_accuracy)
   
   # Filter to get parameters for correlated t-test
@@ -53,7 +56,7 @@ calculate_p_values <- function(data, summary_data, theproblem, problem_data){
     outs <- data.frame(problem = theproblem, statistic = NA, p.value = NA)
     return(outs)
   } else{
-    t_test <- corr_t_test(x = x, y = y, n = 30, n1 = as.integer(params$Train), n2 = as.integer(params$Test))
+    t_test <- resampled_ttest(x = x, y = y, n = 30, n1 = as.integer(params$Train), n2 = as.integer(params$Test))
     outs <- data.frame(problem = theproblem)
     outs <- cbind(outs, t_test)
     return(outs)
