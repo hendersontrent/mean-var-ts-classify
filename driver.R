@@ -15,6 +15,10 @@ source("setup.R")
 
 source("analysis/prepare-time-series-data.R")
 
+# Summarise problems
+
+source("analysis/summarise-problems.R")
+
 # Calculate mean and variance features
 
 source("analysis/compute-mean-and-var.R")
