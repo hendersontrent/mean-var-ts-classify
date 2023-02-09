@@ -15,6 +15,10 @@ source("setup.R")
 
 source("analysis/prepare-time-series-data.R")
 
+# Summarise problems
+
+source("analysis/summarise-problems.R")
+
 # Calculate mean and variance features
 
 source("analysis/compute-mean-and-var.R")
@@ -30,7 +34,7 @@ source("analysis/mean-and-var-case-studies.R")
 
 # Compare classification performance between mean + variance and catch24
 
-# 
+source("analysis/compare-catch2-catch24.R")
 
 #---------------- Annie's work here ------------
 
