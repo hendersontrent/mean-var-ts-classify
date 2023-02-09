@@ -25,11 +25,11 @@ rm(TimeSeriesData) # Clean up environment as dataframe is large
 #---------------- Classification accuracy -----------------
 
 #' Function to map classification performance calculations over datasets/problems
-#' @param theproblem filepath to the feature data
-#' @param tt_labels the dataframe containing train-test labels
-#' @param set Boolean whether to fit by set or not
-#' @param remove_catch24 Boolean whether to remove mean and SD from catch22 feature set
-#' @returns an object of class dataframe
+#' @param theproblem \code{string} specifying the filepath to the feature data
+#' @param tt_labels \code{data.frame} containing train-test labels
+#' @param set \code{Boolean} whether to fit by set or not
+#' @param remove_catch24 \code{Boolean} whether to remove mean and SD from catch22 feature set
+#' @returns an object of class \code{data.frame}
 #' @author Trent Henderson
 #' 
 
@@ -74,13 +74,7 @@ calculate_accuracy_by_problem <- function(theproblem, tt_labels, set = TRUE, rem
 calculate_accuracy_by_problem_safe <- purrr::possibly(calculate_accuracy_by_problem, otherwise = NULL)
 data_files <- list.files("data/feature-calcs", full.names = TRUE, pattern = "\\.Rda")
 
-outputs <- data_files %>%
-  purrr::map_df(~ calculate_accuracy_by_problem_safe(theproblem = .x, tt_labels = train_test_ids, set = TRUE, remove_catch24 = TRUE))
-  
-# Run function using all features at once to form an aggregate comparison later
-  
-outputs_aggregate <- data_files %>%
-  purrr::map_df(~ calculate_accuracy_by_problem_safe(theproblem = .x, tt_labels = train_test_ids, set = FALSE, remove_catch24 = TRUE))
+catch24 <- data_files %>%
+  purrr::map_df(~ calculate_accuracy_by_problem_safe(theproblem = .x, tt_labels = train_test_ids, set = TRUE, remove_catch24 = FALSE))
 
-save(outputs, file = "data/outputs.Rda")
-save(outputs_aggregate, file = "data/outputs_aggregate.Rda") 
+save(catch24, file = "data/catch24.Rda")

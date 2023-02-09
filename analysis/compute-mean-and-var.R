@@ -30,9 +30,10 @@ num_classes <- TimeSeriesData %>%
 #------------- Feature extraction --------------
 
 #' Function to map over datasets to avoid massive dataframe processing times / crashes
-#' @param data the dataset containing all raw time series
-#' @param theproblem string specifying the problem to calculate features for
-#' @returns an object of class dataframe
+#' 
+#' @param data \code{data.frame} containing raw time series
+#' @param theproblem \code{string} specifying the problem to calculate features for
+#' @returns an object of class \code{data.frame}
 #' @author Trent Henderson
 #' 
 
@@ -64,6 +65,7 @@ extract_mean_and_sd_safe <- purrr::possibly(extract_mean_and_sd, otherwise = NUL
 mean_sd_test <- unique(TimeSeriesData$problem) %>%
   purrr::map_df(~ extract_mean_and_sd_safe(data = TimeSeriesData, theproblem = .x))
 
+save(mean_sd_test, file = "data/mean_sd_test.Rda")
 rm(TimeSeriesData)
 
 #------------- Classification performance --------------
@@ -75,9 +77,10 @@ rm(TimeSeriesData)
 #-----------------
 
 #' Function to map classification performance calculations over datasets/problems
-#' @param data the dataframe to operate on
-#' @param theproblem string of the problem to calculate for
-#' @returns an object of class dataframe
+#' 
+#' @param data \code{data.frame} to operate on
+#' @param theproblem \code{string} denoting the problem to calculate for
+#' @returns an object of class \code{data.frame}
 #' @author Trent Henderson
 #' 
 

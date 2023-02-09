@@ -19,13 +19,18 @@ source("analysis/prepare-time-series-data.R")
 
 source("analysis/compute-mean-and-var.R")
 
-# Calculate catch24 features
+# Calculate catch24 features and compute classification performance
 
 source("analysis/compute-catch24.R")
+source("analysis/fit-catch24-classifiers.R")
 
-# Compare classification performance
+# Analyse case studies where mean + variance does very well
 
-# Placeholder
+source("analysis/mean-and-var-case-studies.R")
+
+# Compare classification performance between mean + variance and catch24
+
+# 
 
 #---------------- Annie's work here ------------
 
