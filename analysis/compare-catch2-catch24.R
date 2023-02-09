@@ -13,4 +13,11 @@
 # Author: Trent Henderson, 10 February 2023
 #------------------------------------------
 
+# Load results
+
+load("data/mean_sd_outputs.Rda")
+load("data/catch24.Rda")
+
+#-------------- Do statistical comparisons ---------------
+
 
