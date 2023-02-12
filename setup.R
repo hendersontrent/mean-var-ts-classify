@@ -17,6 +17,7 @@ library(ggplot2)
 library(ggrepel)
 library(scales)
 library(foreign)
+library(patchwork)
 library(theft)
 library(correctR)
 

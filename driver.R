@@ -1,6 +1,10 @@
 #-----------------------------------------
 # This script can be used to run the whole
-# project in order from start to finish
+# project in order from start to finish.
+# It requires 
+# http://www.timeseriesclassification.com/Downloads/Archives/Univariate2018_arff.zip
+# to be downloaded, unzipped, and put into 
+# the data/ folder first.
 #-----------------------------------------
 
 #-----------------------------------------
