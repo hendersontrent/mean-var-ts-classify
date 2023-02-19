@@ -25,6 +25,7 @@ load("data/mean_sd_test.Rda")
 
 p <- mean_sd_test %>%
   filter(problem == "GunPointOldVersusYoung") %>%
+  mutate(group = ifelse(group == 1, "Young", "Old")) %>%
   pivot_wider(id_cols = c("id", "problem", "group", "method", "set_split"), names_from = "names", values_from = "values") %>%
   mutate(group = as.factor(group)) %>%
   ggplot(aes(x = mu, y = sigma)) +
@@ -53,7 +54,7 @@ p1 <- mean_sd_test %>%
   labs(x = "Mean",
        y = "Density",
        fill = "Group") +
-  scale_fill_brewer(palette = "Dark2") +
+  scale_fill_manual(values = c("#7570B3", "#E7298A", "#E6AB02")) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",

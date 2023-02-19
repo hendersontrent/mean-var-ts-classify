@@ -80,8 +80,8 @@ aggregated2 <- aggregated %>%
 
 mypal <- c("Non-significant difference" = "grey80",
            "Zero variance for one/more sets" = "grey50",
-           "Mean and variance" = "#377EB8",
-           "catch24" = "#FF0029") # Same first 2 colours as my palette from big upcoming classification paper
+           "Mean and variance" = "#1B9E77",
+           "catch24" = "#D95F02")
 
 # Define coordinates for upper triangle to shade
 

@@ -138,9 +138,6 @@ save(benchmark_keepers, file = "data/benchmark_keepers.Rda")
 
 #------------- Results visualisation --------------
 
-mypal2 <- c("<= chance" = mypal[2],
-            "> chance" = mypal[1])
-
 p <- mean_sd_outputs %>%
   mutate(accuracy = accuracy * 100) %>%
   group_by(problem) %>%
@@ -162,7 +159,7 @@ p <- mean_sd_outputs %>%
   scale_y_continuous(limits = c(0, 100),
                      breaks = seq(from = 0, to = 100, by = 20),
                      labels = function(x)paste0(x, "%")) + 
-  scale_colour_manual(values = mypal2) +
+  scale_colour_brewer(palette = "Dark2") +
   coord_flip() +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
