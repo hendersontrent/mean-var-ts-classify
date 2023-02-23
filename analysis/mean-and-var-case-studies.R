@@ -32,6 +32,7 @@ p <- mean_sd_test %>%
   stat_ellipse(aes(x = mu, y = sigma, fill = group), geom = "polygon", alpha = 0.2) +
   guides(fill = "none") +
   geom_point(size = 2.25, aes(colour = group)) +
+  annotate("text", x = 1125, y = 225, label = "bold(A)", parse = TRUE, size = 7) +
   labs(x = "Mean",
        y = "Standard deviation",
        colour = "Group") +
@@ -45,16 +46,23 @@ p <- mean_sd_test %>%
 
 print(p)
 
+text_df <- data.frame(problem = c("InsectEPGRegularTrain", "InsectEPGSmallTrain"),
+                      x = c(2.5, 2.5),
+                      y = c(6.25, 6.25),
+                      label = c("B", "C"))
+
 p1 <- mean_sd_test %>%
   filter(problem %in% c("InsectEPGRegularTrain", "InsectEPGSmallTrain")) %>%
   pivot_wider(id_cols = c("id", "problem", "group", "method", "set_split"), names_from = "names", values_from = "values") %>%
   mutate(group = as.factor(group)) %>%
-  ggplot(aes(x = mu, y = ..density.., fill = group)) +
-  geom_histogram() +
+  ggplot() +
+  geom_histogram(aes(x = mu, y = ..density.., fill = group)) +
+  geom_text(data = text_df, aes(x = x, y = y, label = label), fontface = "bold", size = 7) +
   labs(x = "Mean",
        y = "Density",
        fill = "Group") +
-  scale_fill_manual(values = c("#7570B3", "#E7298A", "#E6AB02")) +
+  scale_fill_manual(values = c(RColorBrewer::brewer.pal(6, "Dark2")[3], RColorBrewer::brewer.pal(6, "Dark2")[4], 
+                               RColorBrewer::brewer.pal(6, "Dark2")[6])) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
