@@ -66,7 +66,7 @@ p_values <- unique(both$problem) %>%
 aggregated2 <- aggregated %>%
   inner_join(p_values, by = c("problem" = "problem")) %>%
   mutate(p.value.adj = p.adjust(p.value, method = "holm")) %>%
-  mutate(significant = ifelse(p.value.adj < 0.05, "Significant difference", "Non-significant difference"),
+  mutate(significant = ifelse(p.value < 0.05, "Significant difference", "Non-significant difference"),
          top_performer = case_when(
            significant == "Significant difference" & catch24_bal_acc_mean > mean_and_var_bal_acc_mean ~ "catch24",
            significant == "Significant difference" & catch24_bal_acc_mean < mean_and_var_bal_acc_mean ~ "Mean and variance",
@@ -80,8 +80,8 @@ aggregated2 <- aggregated %>%
 
 mypal <- c("Non-significant difference" = "grey80",
            "Zero variance for one/more sets" = "grey50",
-           "Mean and variance" = "#1B9E77",
-           "catch24" = "#D95F02")
+           "Mean and variance" = RColorBrewer::brewer.pal(6, "Dark2")[2],
+           "catch24" = RColorBrewer::brewer.pal(6, "Dark2")[1])
 
 # Define coordinates for upper triangle to shade
 
@@ -107,9 +107,9 @@ p <- ns %>%
   geom_linerange(data = sig, aes(ymin = lower_y, ymax = upper_y, colour = top_performer), size = 0.7) +
   geom_linerange(data = sig, aes(xmin = lower_x, xmax = upper_x, colour = top_performer), size = 0.7) +
   geom_point(data = sig, aes(colour = top_performer), size = 3) +
-  annotate("text", x = 75, y = 10, label = "Mean and variance", size = 4) +
+  annotate("text", x = 75, y = 10, label = "FTM", size = 4) +
   annotate("text", x = 25, y = 90, label = "catch24", size = 4) +
-  labs(x = "Balanced classification accuracy mean and variance (%)",
+  labs(x = "Balanced classification accuracy FTM (%)",
        y = "Balanced classification accuracy catch24 (%)",
        colour = NULL) +
   scale_x_continuous(labels = function(x)paste0(x, "%"),
