@@ -148,10 +148,10 @@ p <- mean_sd_outputs %>%
   left_join(num_classes, by = c("problem" = "problem")) %>%
   left_join(benchmark_keepers, by = c("problem" = "problem")) %>%
   mutate(chance = chance * 100) %>%
-  mutate(performance = ifelse(category == "Significant", "> chance", "<= chance")) %>%
+  filter(category == "Significant") %>%
   ggplot() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu, colour = performance)) +
-  geom_point(aes(x = reorder(problem, mu), y = mu, colour = performance)) +
+  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
+  geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
   geom_point(aes(x = reorder(problem, mu), y = chance), colour = "black", shape = 3, size = 1) +
   labs(x = "Problem",
        y = "Classification accuracy (%)",
@@ -165,8 +165,7 @@ p <- mean_sd_outputs %>%
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
         axis.text = element_text(size = 11),
-        axis.title = element_text(size = 12),
-        legend.text = element_text(size = 11))
+        axis.title = element_text(size = 12))
 
 print(p)
 ggsave("output/mean-and-sd-resamples.pdf", plot = p, units = "in", height = 16, width = 11)

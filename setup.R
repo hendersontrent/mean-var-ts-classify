@@ -20,6 +20,7 @@ library(foreign)
 library(patchwork)
 library(theft)
 library(correctR)
+library(RColorBrewer)
 
 # Create important folders if none exist
 
