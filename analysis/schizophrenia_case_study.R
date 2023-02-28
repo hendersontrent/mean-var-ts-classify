@@ -15,19 +15,19 @@ library(ggpubr)
 theme_set(theme_cowplot())
 
 # Load in metadata 
-load("data/schizophrenia_case_study/metadata.Rda")
+load("fMRI_analysis_data/schizophrenia_case_study/metadata.Rda")
 
 # Load catch2 and catch22 feature values for data
-load("data/schizophrenia_case_study/all_feature_values.Rda")
+load("fMRI_analysis_data/schizophrenia_case_study/all_feature_values.Rda")
 
 # Load balanced accuracy results from 10-resample 10-fold CV linear SVM
-load("data/schizophrenia_case_study/balanced_accuracy_by_repeats.Rda")
+load("fMRI_analysis_data/schizophrenia_case_study/balanced_accuracy_by_repeats.Rda")
 
 # Load SVM coefficients
-load("data/schizophrenia_case_study/SVM_coefficients.Rda")
+load("fMRI_analysis_data/schizophrenia_case_study/SVM_coefficients.Rda")
 
 # Load null balanced accuracy results from 10-resample 10-fold CV linear SVM
-load("data/schizophrenia_case_study/Null_SVM_balanced_accuracy.Rda")
+load("fMRI_analysis_data/schizophrenia_case_study/Null_SVM_balanced_accuracy.Rda")
 
 # Load in univariate time-series feature info
 TS_feature_info <- read.csv("info/catch24_info.csv")
