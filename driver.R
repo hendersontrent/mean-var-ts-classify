@@ -23,9 +23,11 @@ source("analysis/prepare-time-series-data.R")
 
 source("analysis/summarise-problems.R")
 
-# Calculate mean and variance features
+# Calculate mean and variance features and classification performance
 
 source("analysis/compute-mean-and-var.R")
+source("analysis/fit-ftm-classifiers.R")
+source("analysis/analyse-ftm-performance.R")
 
 # Calculate catch24 features and compute classification performance
 

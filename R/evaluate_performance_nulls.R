@@ -9,6 +9,8 @@
 
 evaluate_performance_nulls <- function(data, problem_name, n = 10000){
   
+  message(paste0("Doing: ", problem_name))
+  
   tmp <- data %>%
     filter(problem == problem_name) %>%
     mutate(group = as.factor(as.character(group))) %>%
@@ -101,6 +103,8 @@ evaluate_performance_nulls <- function(data, problem_name, n = 10000){
 #' 
 
 calculate_null <- function(train_data, test_data, seed){
+  
+  message(paste0("Shuffle ", seed))
   
   # Shuffle class labels
   
