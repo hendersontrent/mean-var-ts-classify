@@ -114,7 +114,7 @@ calculate_null <- function(train_data, test_data, seed){
   
   # Calculate balanced accuracy as the average of recalls
   
-  cm <- t(as.matrix(caret::confusionMatrix(predict(mod, newdata = test), test$group)))
+  cm <- t(as.matrix(caret::confusionMatrix(predict(mod, newdata = test_data), test_data$group)))
   bal_acc <- sum(diag(cm)) / (sum(diag(cm)) + (sum(cm) - sum(diag(cm))))
   
   results <- data.frame(model_type = "Null",
