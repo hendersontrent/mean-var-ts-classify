@@ -16,7 +16,7 @@
 
 # Load results
 
-load("data/mean_sd_outputs.Rda")
+load("data/ftm.Rda")
 load("data/catch24.Rda")
 
 # Load problem metadata

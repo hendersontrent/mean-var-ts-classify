@@ -21,6 +21,8 @@ library(patchwork)
 library(theft)
 library(correctR)
 library(RColorBrewer)
+library(e1071)
+library(caret)
 
 # Create important folders if none exist
 
