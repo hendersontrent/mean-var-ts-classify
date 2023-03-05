@@ -18,6 +18,8 @@
 
 calculate_p_values <- function(data, theproblem, problem_data){
   
+  message(paste0("Doing: ", theproblem))
+  
   tmp_data <- data %>%
     filter(problem == theproblem)
   
@@ -38,11 +40,11 @@ calculate_p_values <- function(data, theproblem, problem_data){
   # Set up vectors
   
   x <- tmp_data %>%
-    filter(method == "Mean and variance") %>%
+    filter(method == "FTM") %>%
     pull(balanced_accuracy)
   
   y <- tmp_data %>%
-    filter(method == "catch24") %>%
+    filter(method == "FTM + catch22") %>%
     pull(balanced_accuracy)
   
   # Filter to get parameters for correlated t-test

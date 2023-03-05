@@ -43,13 +43,13 @@ benchmark_keepers <- ftm %>%
                          lower.tail = FALSE),
          p.value = 1 - p.value) %>%
   mutate(category = ifelse(p.value <= 0.05, "Significant", "Non-significant")) %>%
-  dplyr::select(problem, p.value, category)
+  dplyr::select(problem, p.value, category, mu)
 
 save(benchmark_keepers, file = "data/benchmark_keepers.Rda")
 
 #------------- Results visualisation --------------
 
-p <- mean_sd_outputs %>%
+p <- ftm %>%
   mutate(balanced_accuracy = balanced_accuracy * 100) %>%
   group_by(problem) %>%
   summarise(mu = mean(balanced_accuracy, na.rm = TRUE),
@@ -61,8 +61,8 @@ p <- mean_sd_outputs %>%
   mutate(chance = chance * 100) %>%
   filter(category == "Significant") %>%
   ggplot() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
-  geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
+  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[1]) +
+  geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[1]) +
   geom_point(aes(x = reorder(problem, mu), y = chance), colour = "black", shape = 3, size = 1) +
   labs(x = "Problem",
        y = "Balanced classification accuracy (%)",
@@ -75,8 +75,18 @@ p <- mean_sd_outputs %>%
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
-        axis.text = element_text(size = 11),
-        axis.title = element_text(size = 12))
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16))
 
 print(p)
 ggsave("output/mean-and-sd-resamples.pdf", plot = p, units = "in", height = 16, width = 11)
+
+#------------- Summary statistics for main text --------------
+
+# Total significant problems
+
+benchmark_keepers %>%
+  group_by(category) %>%
+  summarise(counter = n()) %>%
+  ungroup() %>%
+  mutate(props = counter / sum(counter))

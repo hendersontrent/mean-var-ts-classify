@@ -37,7 +37,12 @@ p <- mean_sd_test %>%
   scale_colour_brewer(palette = "Dark2") +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
-        legend.position = "bottom")
+        legend.position = "bottom",
+        plot.subtitle = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 14))
 
 print(p)
 
@@ -60,7 +65,12 @@ p1 <- mean_sd_test %>%
                                RColorBrewer::brewer.pal(6, "Dark2")[6])) +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
-        legend.position = "bottom")
+        legend.position = "bottom",
+        axis.text = element_text(size = 14),
+        plot.subtitle = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 14))
 
 print(p1)
 

@@ -25,19 +25,20 @@ load("data/problem_summaries.Rda")
 
 # Merge datasets
 
-mean_sd_outputs <- mean_sd_outputs %>%
-  mutate(method = "Mean and variance")
+ftm <- ftm %>%
+  mutate(method = "FTM")
 
 catch24 <- catch24 %>%
-  mutate(method = "catch24")
+  mutate(method = "FTM + catch22")
 
-both <- bind_rows(mean_sd_outputs, catch24)
+both <- bind_rows(ftm, catch24) %>%
+  filter(problem %in% unique(catch24$problem))
 
 # Calculate summary statistics for plotting later
 
 aggregated <- list()
 
-for(i in c("Mean and variance", "catch24")){
+for(i in c("FTM", "FTM + catch22")){
   tmp <- both %>%
     filter(method == i) %>%
     mutate(balanced_accuracy = balanced_accuracy * 100) %>%
@@ -48,12 +49,12 @@ for(i in c("Mean and variance", "catch24")){
     mutate(lower = balanced_accuracy_mean - 1 * balanced_accuracy_sd,
            upper = balanced_accuracy_mean + 1 * balanced_accuracy_sd)
   
-  if(i == "Mean and variance"){
+  if(i == "FTM"){
     colnames(tmp) <- c("problem", "mean_and_var_bal_acc_mean", "mean_and_var_bal_acc_sd", "lower_x", "upper_x")
   } else{
     colnames(tmp) <- c("problem", "catch24_bal_acc_mean", "catch24_bal_acc_sd", "lower_y", "upper_y")
   }
-  aggregated[[match(i, c("Mean and variance", "catch24"))]] <- tmp
+  aggregated[[match(i, c("FTM", "FTM + catch22"))]] <- tmp
 }
 
 aggregated <- do.call("left_join", aggregated)
@@ -68,7 +69,7 @@ aggregated2 <- aggregated %>%
   mutate(p.value.adj = p.adjust(p.value, method = "holm")) %>%
   mutate(significant = ifelse(p.value < 0.05, "Significant difference", "Non-significant difference"),
          top_performer = case_when(
-           significant == "Significant difference" & catch24_bal_acc_mean > mean_and_var_bal_acc_mean ~ "catch24",
+           significant == "Significant difference" & catch24_bal_acc_mean > mean_and_var_bal_acc_mean ~ "FTM + catch22",
            significant == "Significant difference" & catch24_bal_acc_mean < mean_and_var_bal_acc_mean ~ "Mean and variance",
            significant == "Non-significant difference"                                                ~ "Non-significant difference")) %>%
   mutate(significant = ifelse(catch24_bal_acc_sd == 0 | mean_and_var_bal_acc_sd == 0, "Zero variance for one/more sets", significant),
@@ -81,7 +82,7 @@ aggregated2 <- aggregated %>%
 mypal <- c("Non-significant difference" = "grey80",
            "Zero variance for one/more sets" = "grey50",
            "Mean and variance" = RColorBrewer::brewer.pal(6, "Dark2")[2],
-           "catch24" = RColorBrewer::brewer.pal(6, "Dark2")[1])
+           "FTM + catch22" = RColorBrewer::brewer.pal(6, "Dark2")[1])
 
 # Define coordinates for upper triangle to shade
 
@@ -93,7 +94,7 @@ ns <- aggregated2 %>%
   filter(top_performer %in% c("Non-significant difference", "Zero variance for one/more sets"))
 
 sig <- aggregated2 %>%
-  filter(top_performer %in% c("Mean and variance", "catch24"))
+  filter(top_performer %in% c("Mean and variance", "FTM + catch22"))
 
 # Draw scatterplot
 
@@ -106,11 +107,11 @@ p <- ns %>%
   geom_point(aes(colour = top_performer), size = 2) +
   geom_linerange(data = sig, aes(ymin = lower_y, ymax = upper_y, colour = top_performer), size = 0.7) +
   geom_linerange(data = sig, aes(xmin = lower_x, xmax = upper_x, colour = top_performer), size = 0.7) +
-  geom_point(data = sig, aes(colour = top_performer), size = 3) +
-  annotate("text", x = 75, y = 10, label = "FTM", size = 4) +
-  annotate("text", x = 25, y = 90, label = "catch24", size = 4) +
+  geom_point(data = sig, aes(colour = top_performer), size = 4) +
+  annotate("text", x = 75, y = 10, label = "FTM", size = 5) +
+  annotate("text", x = 25, y = 90, label = "FTM + catch22", size = 5) +
   labs(x = "Balanced classification accuracy FTM (%)",
-       y = "Balanced classification accuracy catch24 (%)",
+       y = "Balanced classification accuracy FTM + catch22 (%)",
        colour = NULL) +
   scale_x_continuous(labels = function(x)paste0(x, "%"),
                      breaks = seq(from = 0, to = 100, by = 20)) + 
@@ -120,10 +121,28 @@ p <- ns %>%
   theme_bw() +
   theme(legend.position = "bottom",
         panel.grid.minor = element_blank(),
-        axis.text = element_text(size = 11),
-        axis.title = element_text(size = 12),
-        legend.title = element_text(size = 12),
-        legend.text = element_text(size = 11))
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 14))
 
 print(p)
 ggsave("output/catch2-vs-catch24.pdf", p, units = "in", height = 9, width = 9)
+
+#-------------- Calculate average increase ---------------
+
+catch24_mu <- catch24 %>%
+  group_by(problem) %>%
+  summarise(catch24_avg = mean(balanced_accuracy, na.rm = TRUE)) %>%
+  ungroup()
+
+ftm_mu <- ftm %>%
+  filter(problem %in% unique(catch24_mu$problem)) %>%
+  group_by(problem) %>%
+  summarise(ftm_avg = mean(balanced_accuracy, na.rm = TRUE)) %>%
+  ungroup()
+
+ftm_mu %>%
+  left_join(catch24_mu) %>%
+  mutate(diff = (catch24_avg - ftm_avg) * 100) %>%
+  summarise(avg_diff = mean(diff, na.rm = TRUE))
