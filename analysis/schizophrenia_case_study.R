@@ -86,11 +86,12 @@ mean_balanced_accuracy %>%
   left_join(., p_values) %>%
   filter(p_value_Bonferroni < 0.05) %>%
   mutate(Univariate_Feature_Set = factor(Univariate_Feature_Set, levels=c("FTM", "catch22"))) %>%
+  arrange(desc(Balanced_Accuracy_Across_Repeats)) %>%
   ggplot(data=., mapping=aes(x = Balanced_Accuracy_Across_Repeats, color = Univariate_Feature_Set)) +
-  geom_vline(aes(xintercept = Balanced_Accuracy_Across_Repeats, color = Univariate_Feature_Set), linewidth=1.5) +
+  geom_vline(aes(xintercept = Balanced_Accuracy_Across_Repeats, color = Univariate_Feature_Set), linewidth=1, alpha=0.8) +
   labs(color = "Feature Set") +
   scale_color_manual(values = brewer.pal(3, "Dark2")[c(1,3)]) +
-  scale_x_continuous(limits=c(55, 66), breaks = c(55, 60, 65)) +
+  scale_x_continuous(limits=c(54, 66), breaks = c(55, 60, 65)) +
   xlab("Mean Balanced Accuracy (%)") +
   theme(legend.position = "bottom",
         axis.title.y = element_blank())
@@ -180,11 +181,11 @@ balanced_accuracy_by_repeats %>%
             value_SD = round(sd(Repeat_Balanced_Accuracy)*100, 1)) %>%
   left_join(., p_values)
 
-# PD_PeriodicityWang_th0_01
+# SB_MotifThree_quantile_hh
 balanced_accuracy_by_repeats %>%
   filter(Analysis_Type == "Univariate_TS_Feature", 
          Univariate_Feature_Set == "catch22",
-         group_var == "PD_PeriodicityWang_th0_01") %>%
+         group_var == "SB_MotifThree_quantile_hh") %>%
   group_by(Univariate_Feature_Set, group_var) %>%
   summarise(value_mean = round(mean(Repeat_Balanced_Accuracy)*100, 1),
             value_SD = round(sd(Repeat_Balanced_Accuracy)*100, 1)) %>%
