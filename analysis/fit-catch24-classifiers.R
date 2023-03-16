@@ -1,7 +1,7 @@
 #------------------------------------------
 # This script sets out to compute 
-# classification accuracy for each feature 
-# set by problem
+# classification accuracy for catch24 for
+# each problem
 #
 # NOTE: This script requires setup.R and
 # analysis/compute-features.R to have been 
@@ -22,59 +22,28 @@ train_test_ids <- TimeSeriesData %>%
 
 rm(TimeSeriesData) # Clean up environment as dataframe is large
 
-#---------------- Classification accuracy -----------------
+# Load and bind all the feature calculations and join in set split labels
 
-#' Function to map classification performance calculations over datasets/problems
-#' @param theproblem \code{string} specifying the filepath to the feature data
-#' @param tt_labels \code{data.frame} containing train-test labels
-#' @param set \code{Boolean} whether to fit by set or not
-#' @param remove_catch24 \code{Boolean} whether to remove mean and SD from catch22 feature set
-#' @returns an object of class \code{data.frame}
-#' @author Trent Henderson
-#' 
+features <- list()
 
-calculate_accuracy_by_problem <- function(theproblem, tt_labels, set = TRUE, remove_catch24 = TRUE){
-  
-  files <- list.files("data/feature-calcs", full.names = TRUE, pattern = "\\.Rda")
-  message(paste0("Doing problem ", match(theproblem, files), "/", length(files)))
-  load(theproblem)
-  problem_name <- gsub(".*/", "\\1", theproblem)
+for(i in list.files("data/feature-calcs", full.names = TRUE, pattern = "\\.Rda")){
+  load(i)
+  problem_name <- gsub("data/feature-calcs/", "\\1", i)
   problem_name <- gsub(".Rda", "\\1", problem_name)
-  
-  # Remove Mean and SD from catch22 if specified (e.g., for un-normalised data)
-  
-  if(remove_catch24){
-    outs <- outs %>%
-      filter(names %ni% c("DN_Mean", "DN_Spread_Std"))
-  }
-  
-  # Join in train-test indicator
-  
-  outs <- outs %>%
-    inner_join(tt_labels, by = c("id" = "id")) %>%
-    dplyr::select(-c(problem))
-  
-  # Fit multi-feature classifiers by feature set
-  
-  results <- fit_multi_feature_classifier_tt(outs, 
-                                             id_var = "id", 
-                                             group_var = "group",
-                                             by_set = set, 
-                                             test_method = "svmLinear", 
-                                             use_balanced_accuracy = TRUE,
-                                             use_k_fold = TRUE, 
-                                             num_folds = 10, 
-                                             num_resamples = 30,
-                                             problem_name = problem_name,
-                                             conf_mat = FALSE)
-  
-  return(results)
+  outs$problem <- problem_name
+  features[[i]] <- outs
 }
 
-calculate_accuracy_by_problem_safe <- purrr::possibly(calculate_accuracy_by_problem, otherwise = NULL)
-data_files <- list.files("data/feature-calcs", full.names = TRUE, pattern = "\\.Rda")
+features <- do.call("rbind", features)
 
-catch24 <- data_files %>%
-  purrr::map_df(~ calculate_accuracy_by_problem_safe(theproblem = .x, tt_labels = train_test_ids, set = TRUE, remove_catch24 = FALSE))
+features <- features %>%
+  left_join(train_test_ids, by = c("id" = "id", "problem" = "problem"))
+
+rm(i, outs, train_test_ids, problem_name)
+
+#---------------- Classification accuracy -----------------
+
+catch24 <- unique(features$problem) %>%
+  purrr::map_dfr(~ evaluate_performance(features, .x, n_resamples = 30))
 
 save(catch24, file = "data/catch24.Rda")

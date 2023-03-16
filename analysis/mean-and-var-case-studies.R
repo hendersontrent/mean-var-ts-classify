@@ -11,10 +11,6 @@
 # Author: Trent Henderson, 9 February 2023
 #-----------------------------------------
 
-# Define vector of 2 problems that got 100% and 1 that got close
-
-the_probs <- c("InsectEPGRegularTrain", "GunPointOldVersusYoung", "InsectEPGSmallTrain")
-
 # Load data
 
 load("data/mean_sd_test.Rda")
@@ -33,7 +29,8 @@ p <- mean_sd_test %>%
   guides(fill = "none") +
   geom_point(size = 2.25, aes(colour = group)) +
   annotate("text", x = 1125, y = 225, label = "bold(A)", parse = TRUE, size = 7) +
-  labs(x = "Mean",
+  labs(subtitle = "GunPointOldVersusYoung",
+       x = "Mean",
        y = "Standard deviation",
        colour = "Group") +
   scale_fill_brewer(palette = "Dark2") +
@@ -41,24 +38,27 @@ p <- mean_sd_test %>%
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
-        strip.background = element_blank()) +
-  facet_wrap(~problem, scales = "free", nrow = 1, ncol = 1)
+        plot.subtitle = element_text(size = 16),
+        axis.text = element_text(size = 14),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 14))
 
 print(p)
 
-text_df <- data.frame(problem = c("InsectEPGRegularTrain", "InsectEPGSmallTrain"),
-                      x = c(2.5, 2.5),
-                      y = c(6.25, 6.25),
-                      label = c("B", "C"))
+text_df <- data.frame(x = c(2.5),
+                      y = c(8.07),
+                      label = c("B"))
 
 p1 <- mean_sd_test %>%
-  filter(problem %in% c("InsectEPGRegularTrain", "InsectEPGSmallTrain")) %>%
+  filter(problem == "InsectEPGRegularTrain") %>%
   pivot_wider(id_cols = c("id", "problem", "group", "method", "set_split"), names_from = "names", values_from = "values") %>%
   mutate(group = as.factor(group)) %>%
   ggplot() +
   geom_histogram(aes(x = mu, y = ..density.., fill = group)) +
   geom_text(data = text_df, aes(x = x, y = y, label = label), fontface = "bold", size = 7) +
-  labs(x = "Mean",
+  labs(subtitle = "InsectEPGRegularTrain",
+       x = "Mean",
        y = "Density",
        fill = "Group") +
   scale_fill_manual(values = c(RColorBrewer::brewer.pal(6, "Dark2")[3], RColorBrewer::brewer.pal(6, "Dark2")[4], 
@@ -66,10 +66,13 @@ p1 <- mean_sd_test %>%
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
-        strip.background = element_blank()) +
-  facet_wrap(~problem, scales = "free", nrow = 2, ncol = 1)
+        axis.text = element_text(size = 14),
+        plot.subtitle = element_text(size = 16),
+        axis.title = element_text(size = 16),
+        legend.title = element_text(size = 15),
+        legend.text = element_text(size = 14))
 
 print(p1)
 
 p2 <- patchwork::wrap_plots(list(p, p1), nrow = 1, ncol = 2)
-ggsave("output/mean-and-var-case-studies.pdf", plot = p2, units = "in", height = 8, width = 11)
+ggsave("output/mean-and-var-case-studies.pdf", plot = p2, units = "in", height = 5.5, width = 11)

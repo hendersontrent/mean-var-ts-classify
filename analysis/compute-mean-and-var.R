@@ -9,23 +9,13 @@
 # to have been run first
 #-----------------------------------------
 
-#-------------------------------------
-# Author: Trent Henderson, 7 June 2022
-#-------------------------------------
+#--------------------------------------
+# Author: Trent Henderson, 2 March 2023
+#--------------------------------------
 
 # Load data
 
 load("data/TimeSeriesData.Rda")
-
-# Get chance probabilities
-
-num_classes <- TimeSeriesData %>%
-  dplyr::select(c(target, problem)) %>%
-  distinct() %>%
-  group_by(problem) %>%
-  summarise(classes = n()) %>%
-  ungroup() %>%
-  mutate(chance = 1 / classes)
 
 #------------- Feature extraction --------------
 
@@ -67,105 +57,3 @@ mean_sd_test <- unique(TimeSeriesData$problem) %>%
 
 save(mean_sd_test, file = "data/mean_sd_test.Rda")
 rm(TimeSeriesData)
-
-#------------- Classification performance --------------
-
-# NOTE: Goal is to determine is mean and variance can outperform chance to determine effect of z-scoring
-
-#-----------------
-# Resamples method
-#-----------------
-
-#' Function to map classification performance calculations over datasets/problems
-#' 
-#' @param data \code{data.frame} to operate on
-#' @param theproblem \code{string} denoting the problem to calculate for
-#' @returns an object of class \code{data.frame}
-#' @author Trent Henderson
-#' 
-
-calculate_accuracy_for_mean_sd <- function(data, theproblem){
-  
-  message(paste0("Doing problem ", match(theproblem, unique(data$problem)), "/", length(unique(data$problem))))
-          
-  outs <- data %>%
-    filter(problem == theproblem)
-  
-  # Fit multi-feature classifiers by feature set
-  
-  results <- fit_multi_feature_classifier_tt(outs, 
-                                             id_var = "id", 
-                                             group_var = "group",
-                                             by_set = FALSE, 
-                                             test_method = "svmLinear", 
-                                             use_balanced_accuracy = TRUE,
-                                             use_k_fold = TRUE, 
-                                             num_folds = 10, 
-                                             num_resamples = 30,
-                                             problem_name = theproblem,
-                                             conf_mat = FALSE) %>%
-    mutate(problem = theproblem)
-  
-  return(results)
-}
-
-calculate_accuracy_for_mean_sd_safe <- purrr::possibly(calculate_accuracy_for_mean_sd, otherwise = NULL)
-
-mean_sd_outputs <- unique(mean_sd_test$problem) %>%
-  purrr::map_df(~ calculate_accuracy_for_mean_sd_safe(data = mean_sd_test, theproblem = .x))
-
-save(mean_sd_outputs, file = "data/mean_sd_outputs.Rda")
-
-#------------- Final list of problems --------------
-
-# Find out for which problems mean and SD significantly outperformed chance
-
-benchmark_keepers <- mean_sd_outputs %>%
-  group_by(problem) %>%
-  summarise(mu = mean(accuracy, na.rm = TRUE),
-            sigma = sd(accuracy, na.rm = TRUE)) %>%
-  ungroup() %>%
-  left_join(num_classes, by = c("problem" = "problem")) %>%
-  mutate(p.value = pnorm(chance, 
-                         mean = mu,
-                         sd = sigma,
-                         lower.tail = FALSE),
-         p.value = 1 - p.value) %>%
-  mutate(category = ifelse(p.value <= 0.05, "Significant", "Non-significant")) %>%
-  dplyr::select(problem, p.value, category)
-
-save(benchmark_keepers, file = "data/benchmark_keepers.Rda")
-
-#------------- Results visualisation --------------
-
-p <- mean_sd_outputs %>%
-  mutate(accuracy = accuracy * 100) %>%
-  group_by(problem) %>%
-  summarise(mu = mean(accuracy, na.rm = TRUE),
-            lower = mean(accuracy, na.rm = TRUE) - 1 * sd(accuracy, na.rm = TRUE),
-            upper = mean(accuracy, na.rm = TRUE) + 1 * sd(accuracy, na.rm = TRUE)) %>%
-  ungroup() %>%
-  left_join(num_classes, by = c("problem" = "problem")) %>%
-  left_join(benchmark_keepers, by = c("problem" = "problem")) %>%
-  mutate(chance = chance * 100) %>%
-  filter(category == "Significant") %>%
-  ggplot() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
-  geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[2]) +
-  geom_point(aes(x = reorder(problem, mu), y = chance), colour = "black", shape = 3, size = 1) +
-  labs(x = "Problem",
-       y = "Classification accuracy (%)",
-       colour = NULL) +
-  scale_y_continuous(limits = c(0, 100),
-                     breaks = seq(from = 0, to = 100, by = 20),
-                     labels = function(x)paste0(x, "%")) + 
-  scale_colour_brewer(palette = "Dark2") +
-  coord_flip() +
-  theme_bw() +
-  theme(panel.grid.minor = element_blank(),
-        legend.position = "bottom",
-        axis.text = element_text(size = 11),
-        axis.title = element_text(size = 12))
-
-print(p)
-ggsave("output/mean-and-sd-resamples.pdf", plot = p, units = "in", height = 16, width = 11)

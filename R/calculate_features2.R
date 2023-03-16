@@ -11,6 +11,7 @@
 #' @param catch24 \code{Boolean} specifying whether to compute \code{catch24} in addition to \code{catch22} if \code{catch22} is one of the feature sets selected. Defaults to \code{FALSE}
 #' @param seed \code{integer} denoting a fixed number for R's random number generator to ensure reproducibility
 #' @param the_id \code{string} denoting the ID in the dataset to compute features for. Defaults to \code{NULL}
+#' @param store_path \code{Boolean} denoting the filepath to store the computed features. This is only used for problems where all time series cannot be computed at once. Defaults to \code{NULL}
 #' @return object of class \code{feature_calculations} that contains the summary statistics for each feature
 #' @author Trent Henderson
 #' @export
@@ -19,7 +20,8 @@
 
 calculate_features2 <- function(data, id_var = "id", time_var = "timepoint", 
                                 values_var = "values", group_var = NULL, 
-                                catch24 = FALSE, seed = 123, the_id = NULL){
+                                catch24 = FALSE, seed = 123, the_id = NULL,
+                                store_path = NULL){
   
   #----------- Reshaping -----------
   
@@ -62,5 +64,9 @@ calculate_features2 <- function(data, id_var = "id", time_var = "timepoint",
       dplyr::mutate(method = "catch22")
   }
   
-  return(outData)
+  if(!is.null(store_path)){
+    save(outData, file = paste0(store_path, the_id, ".Rda"))
+  } else{
+    return(outData)
+  }
 }

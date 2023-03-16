@@ -23,9 +23,12 @@ source("analysis/prepare-time-series-data.R")
 
 source("analysis/summarise-problems.R")
 
-# Calculate mean and variance features
+# Calculate mean and variance features and classification performance
 
 source("analysis/compute-mean-and-var.R")
+source("analysis/fit-ftm-classifiers.R")
+source("analysis/analyse-ftm-performance.R")
+source("analysis/analyse-ftm-performance-against-chance.R")
 
 # Calculate catch24 features and compute classification performance
 
@@ -40,6 +43,6 @@ source("analysis/mean-and-var-case-studies.R")
 
 source("analysis/compare-catch2-catch24.R")
 
-#---------------- Annie's work here ------------
+#---------------- Schizophrenia case study ------------
 
-
+source("analysis/schizophrenia_case_study.R")
