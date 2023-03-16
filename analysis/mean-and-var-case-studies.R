@@ -75,4 +75,4 @@ p1 <- mean_sd_test %>%
 print(p1)
 
 p2 <- patchwork::wrap_plots(list(p, p1), nrow = 1, ncol = 2)
-ggsave("output/mean-and-var-case-studies.pdf", plot = p2, units = "in", height = 8, width = 11)
+ggsave("output/mean-and-var-case-studies.pdf", plot = p2, units = "in", height = 5.5, width = 11)

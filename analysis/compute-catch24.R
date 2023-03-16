@@ -22,7 +22,7 @@ load("data/TimeSeriesData.Rda")
 #' @importFrom purrr map_dfr
 #' @param data \code{data.frame} containing raw time series
 #' @param theproblem \code{string} specifying the problem to calculate features for
-#' @returns an object of class dataframe
+#' @returns \code{data.frame} of feature results
 #' @author Trent Henderson
 #' 
 
@@ -34,13 +34,13 @@ extract_features_by_problem <- function(data, theproblem){
   
   tmp <- data %>%
     filter(problem == theproblem)
-    
+  
   # Calculate features
-    
+  
   outs <- calculate_features(tmp, id_var = "id", time_var = "timepoint", 
                              values_var = "values", group_var = "target", 
                              feature_set = "catch22", catch24 = TRUE, seed = 123)[[1]]
-    
+  
   # Catch cases where appended NAs cause errors (i.e., different time series have different lengths)
   # We do this by mapping over IDs to a modified feature calculation function that drops NAs by ID
   
@@ -50,13 +50,11 @@ extract_features_by_problem <- function(data, theproblem){
                                            values_var = "values", group_var = "target", 
                                            catch24 = TRUE, seed = 123, the_id = .x))
   }
-
+  
   save(outs, file = paste0("data/feature-calcs/", theproblem, ".Rda"))
 }
 
 # Run the function
 
-extract_features_by_problem_safe <- purrr::possibly(extract_features_by_problem, otherwise = NULL)
-
-unique(TimeSeriesData$problem) %>%
-  purrr::map(~ extract_features_by_problem_safe(data = TimeSeriesData, theproblem = .x))
+unique(TimeSeriesData$problem)[!unique(TimeSeriesData$problem) %in% c("AllGestureWiimoteX", "AllGestureWiimoteY", "AllGestureWiimoteZ", "PLAID")] %>%
+  purrr::map(~ extract_features_by_problem(data = TimeSeriesData, theproblem = .x))

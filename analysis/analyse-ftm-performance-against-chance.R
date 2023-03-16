@@ -33,8 +33,8 @@ rm(TimeSeriesData)
 
 benchmark_keepers <- ftm %>%
   group_by(problem) %>%
-  summarise(mu = mean(balanced_accuracy, na.rm = TRUE),
-            sigma = sd(balanced_accuracy, na.rm = TRUE)) %>%
+  summarise(mu = mean(accuracy, na.rm = TRUE),
+            sigma = sd(accuracy, na.rm = TRUE)) %>%
   ungroup() %>%
   left_join(num_classes, by = c("problem" = "problem")) %>%
   mutate(p.value = pnorm(chance, 
@@ -43,18 +43,18 @@ benchmark_keepers <- ftm %>%
                          lower.tail = FALSE),
          p.value = 1 - p.value) %>%
   mutate(category = ifelse(p.value <= 0.05, "Significant", "Non-significant")) %>%
-  dplyr::select(problem, p.value, category, mu)
+  dplyr::select(problem, p.value, category)
 
 save(benchmark_keepers, file = "data/benchmark_keepers.Rda")
 
 #------------- Results visualisation --------------
 
 p <- ftm %>%
-  mutate(balanced_accuracy = balanced_accuracy * 100) %>%
+  mutate(accuracy = accuracy * 100) %>%
   group_by(problem) %>%
-  summarise(mu = mean(balanced_accuracy, na.rm = TRUE),
-            lower = mean(balanced_accuracy, na.rm = TRUE) - 1 * sd(balanced_accuracy, na.rm = TRUE),
-            upper = mean(balanced_accuracy, na.rm = TRUE) + 1 * sd(balanced_accuracy, na.rm = TRUE)) %>%
+  summarise(mu = mean(accuracy, na.rm = TRUE),
+            lower = mean(accuracy, na.rm = TRUE) - 1 * sd(accuracy, na.rm = TRUE),
+            upper = mean(accuracy, na.rm = TRUE) + 1 * sd(accuracy, na.rm = TRUE)) %>%
   ungroup() %>%
   left_join(num_classes, by = c("problem" = "problem")) %>%
   left_join(benchmark_keepers, by = c("problem" = "problem")) %>%
@@ -65,7 +65,7 @@ p <- ftm %>%
   geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[1]) +
   geom_point(aes(x = reorder(problem, mu), y = chance), colour = "black", shape = 3, size = 1) +
   labs(x = "Problem",
-       y = "Balanced classification accuracy (%)",
+       y = "Classification accuracy (%)",
        colour = NULL) +
   scale_y_continuous(limits = c(0, 100),
                      breaks = seq(from = 0, to = 100, by = 20),

@@ -25,18 +25,16 @@ fit_models <- function(data, seed){
   train <- rescale_zscore(train, rescalers)
   test <- rescale_zscore(test, rescalers)
   
-  # Fit classifier and generate predictions
+  # Fit classifier, generate predictions, and calculate metrics
   
   mod <- e1071::svm(group ~ ., data = train, kernel = "linear", cost = 1, scale = FALSE, probability = TRUE)
-  
-  # Calculate balanced accuracy as the average of recalls
-  
   cm <- t(as.matrix(caret::confusionMatrix(predict(mod, newdata = test), test$group)))
-  bal_acc <- sum(diag(cm)) / (sum(diag(cm)) + (sum(cm) - sum(diag(cm))))
+  acc <- sum(diag(cm)) / sum(cm)
+  #bal_acc <- sum(diag(cm)) / (sum(diag(cm)) + (sum(cm) - sum(diag(cm))))
   
   results <- data.frame(model_type = "Main",
                         resample = seed,
-                        balanced_accuracy = bal_acc)
+                        accuracy = acc)
   
   return(results)
 }

@@ -22,8 +22,3 @@ ftm <- unique(mean_sd_test$problem) %>%
   purrr::map_dfr(~ evaluate_performance(mean_sd_test, .x, n_resamples = 30))
 
 save(ftm, file = "data/ftm.Rda")
-
-ftm_null <- unique(mean_sd_test$problem)[!unique(mean_sd_test$problem) %in% "Crop"] %>%
-  purrr::map_dfr(~ evaluate_performance_nulls(mean_sd_test, .x, 10000))
-
-save(ftm_null, file = "data/ftm_null.Rda")

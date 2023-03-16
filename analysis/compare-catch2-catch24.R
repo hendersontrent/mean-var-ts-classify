@@ -41,13 +41,13 @@ aggregated <- list()
 for(i in c("FTM", "FTM + catch22")){
   tmp <- both %>%
     filter(method == i) %>%
-    mutate(balanced_accuracy = balanced_accuracy * 100) %>%
+    mutate(accuracy = accuracy * 100) %>%
     group_by(problem) %>%
-    summarise(balanced_accuracy_mean = mean(balanced_accuracy, na.rm = TRUE),
-              balanced_accuracy_sd = sd(balanced_accuracy, na.rm = TRUE)) %>%
+    summarise(accuracy_mean = mean(accuracy, na.rm = TRUE),
+              accuracy_sd = sd(accuracy, na.rm = TRUE)) %>%
     ungroup() %>%
-    mutate(lower = balanced_accuracy_mean - 1 * balanced_accuracy_sd,
-           upper = balanced_accuracy_mean + 1 * balanced_accuracy_sd)
+    mutate(lower = accuracy_mean - 1 * accuracy_sd,
+           upper = accuracy_mean + 1 * accuracy_sd)
   
   if(i == "FTM"){
     colnames(tmp) <- c("problem", "mean_and_var_bal_acc_mean", "mean_and_var_bal_acc_sd", "lower_x", "upper_x")
@@ -110,8 +110,8 @@ p <- ns %>%
   geom_point(data = sig, aes(colour = top_performer), size = 4) +
   annotate("text", x = 75, y = 10, label = "FTM", size = 5) +
   annotate("text", x = 25, y = 90, label = "FTM + catch22", size = 5) +
-  labs(x = "Balanced classification accuracy FTM (%)",
-       y = "Balanced classification accuracy FTM + catch22 (%)",
+  labs(x = "Classification accuracy FTM (%)",
+       y = "Classification accuracy FTM + catch22 (%)",
        colour = NULL) +
   scale_x_continuous(labels = function(x)paste0(x, "%"),
                      breaks = seq(from = 0, to = 100, by = 20)) + 
@@ -133,13 +133,13 @@ ggsave("output/catch2-vs-catch24.pdf", p, units = "in", height = 9, width = 9)
 
 catch24_mu <- catch24 %>%
   group_by(problem) %>%
-  summarise(catch24_avg = mean(balanced_accuracy, na.rm = TRUE)) %>%
+  summarise(catch24_avg = mean(accuracy, na.rm = TRUE)) %>%
   ungroup()
 
 ftm_mu <- ftm %>%
   filter(problem %in% unique(catch24_mu$problem)) %>%
   group_by(problem) %>%
-  summarise(ftm_avg = mean(balanced_accuracy, na.rm = TRUE)) %>%
+  summarise(ftm_avg = mean(accuracy, na.rm = TRUE)) %>%
   ungroup()
 
 ftm_mu %>%
