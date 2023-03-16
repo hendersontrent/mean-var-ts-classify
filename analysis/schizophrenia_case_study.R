@@ -1,17 +1,9 @@
 ################################################################################
 # Load libraries and data
+#
+# Author: Annie G. Bryant, February 2023
 ################################################################################
-library(tidyverse)
-library(glue)
-library(cowplot)
-library(ggseg)
-library(RColorBrewer)
-library(correctR)
-library(broom)
-library(colorspace)
-library(patchwork)
-library(scales)
-library(ggpubr)
+
 theme_set(theme_cowplot())
 
 # Load in metadata 

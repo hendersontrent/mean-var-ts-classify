@@ -43,6 +43,6 @@ source("analysis/mean-and-var-case-studies.R")
 
 source("analysis/compare-catch2-catch24.R")
 
-#---------------- Annie's work here ------------
+#---------------- Schizophrenia case study ------------
 
-
+source("analysis/schizophrenia_case_study.R")
