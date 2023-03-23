@@ -12,7 +12,7 @@ FC_LocalSimple_mean1_tauresrat,Ratio of ACF to 1-point differences,Simple foreca
 FC_LocalSimple_mean3_stderr,Mean error from three-sample forecasting,Simple forecasting,Mean error (standard deviation) from a rolling three-sample mean forecasting
 IN_AutoMutualInfoStats_40_gaussian_fmmi,"Automutual information, first local minimum",Nonlinear autocorrelation,First local minimum of the automutual information function
 MD_hrv_classic_pnn40,Proportion of values greater than 4% of SD,Incremental differences,Proportion of difference magnitudes that are greater than 4% of the standard deviation of the time series
-PD_PeriodicityWang_th0.01,"First peak in ACF, Wang 2007",Periodicities,"First peak in the autocorrelation function satisfying periodicity conditions described in Wang et al. (2007), after detrending the time-series with a single-knot cubic regression spline"
+PD_PeriodicityWang_th0.01,"First peak in ACF, Wang 2007",Periodicities,"First peak in the autocorrelation function  after detrending the time-series with a single-knot cubic regression spline, based on Wang et al. (2007)"
 SB_BinaryStats_diff_longstretch0,Longest streak of successive decreases,Consecutive stretches,Longest sequence of consecutive values in the time-series with succesive decreases
 SB_BinaryStats_mean_longstretch1,Longest streak of values above mean,Consecutive stretches,Longest sequence of successive values in the time-series that are above than the mean
 SB_MotifThree_quantile_hh,Shannon entropy of three-letter patterns,Symbolic features,Shannon entropy of the frequency of two-letter patterns in a three-letter discretization of the time series
