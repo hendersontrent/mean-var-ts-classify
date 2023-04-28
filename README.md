@@ -1,4 +1,7 @@
 # mean-var-ts-classify
+
+[![DOI](https://zenodo.org/badge/599394535.svg)](https://zenodo.org/badge/latestdoi/599394535)
+
 Holds analysis for working paper on simple feature set performance on time-series classification problems
 
 ## Reproducibility
