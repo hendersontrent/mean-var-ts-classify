@@ -59,7 +59,7 @@ p1 <- mean_sd_test %>%
   geom_text(data = text_df, aes(x = x, y = y, label = label), fontface = "bold", size = 7) +
   labs(subtitle = "InsectEPGRegularTrain",
        x = "Mean",
-       y = "Density",
+       y = "Probability density",
        fill = "Group") +
   scale_fill_manual(values = c(RColorBrewer::brewer.pal(6, "Dark2")[3], RColorBrewer::brewer.pal(6, "Dark2")[4], 
                                RColorBrewer::brewer.pal(6, "Dark2")[6])) +
