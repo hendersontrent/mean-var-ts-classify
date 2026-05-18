@@ -7,7 +7,7 @@ For the neuroimaging case study involving schizophrenia (SCZ) case--control clas
 
 For the UEA/UCR Repository analysis, see below.
 
-## FTM UEA/UCR Repository analysis
+### FTM UEA/UCR Repository analysis
 
 The repository is organised into sub folders, each of which contains a discrete part of this analysis:
 
