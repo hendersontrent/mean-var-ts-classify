@@ -60,26 +60,33 @@ p <- ftm %>%
   left_join(benchmark_keepers, by = c("problem" = "problem")) %>%
   mutate(chance = chance * 100) %>%
   filter(category == "Significant") %>%
+  mutate(colour1 = "Mean accuracy",
+         colour2 = "Chance probability",
+         shape1 = "Mean accuracy",
+         shape2 = "Chance probability") %>%
   ggplot() +
-  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[1]) +
-  geom_point(aes(x = reorder(problem, mu), y = mu), colour = RColorBrewer::brewer.pal(6, "Dark2")[1]) +
-  geom_point(aes(x = reorder(problem, mu), y = chance), colour = "black", shape = 3, size = 1) +
+  geom_point(aes(x = reorder(problem, mu), y = chance, colour = colour2, shape = shape2), size = 1) +
+  geom_errorbar(aes(ymin = lower, ymax = upper, x = reorder(problem, mu), y = mu, colour = colour1)) +
+  geom_point(aes(x = reorder(problem, mu), y = mu, colour = colour1, shape = shape1)) +
   labs(x = "Problem",
        y = "Classification accuracy (%)",
        colour = NULL) +
   scale_y_continuous(limits = c(0, 100),
                      breaks = seq(from = 0, to = 100, by = 20),
                      labels = function(x)paste0(x, "%")) + 
-  scale_colour_brewer(palette = "Dark2") +
+  scale_color_manual(name = "Type", labels = c("Chance probability", "Mean accuracy of FTM \u00B1 1SD"), values = c("black", RColorBrewer::brewer.pal(6, "Dark2")[1])) +
+  scale_shape_manual(name = "Type", labels = c("Chance probability", "Mean accuracy of FTM \u00B1 1SD"), values = c(3, 16)) +
   coord_flip() +
   theme_bw() +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
+        legend.title = element_blank(),
+        legend.text = element_text(size = 14),
         axis.text = element_text(size = 14),
         axis.title = element_text(size = 16))
 
 print(p)
-ggsave("output/mean-and-sd-resamples.pdf", plot = p, units = "in", height = 16, width = 11)
+ggsave("output/mean-and-sd-resamples.pdf", plot = p, units = "in", height = 17, width = 11)
 
 #------------- Summary statistics for main text --------------
 
