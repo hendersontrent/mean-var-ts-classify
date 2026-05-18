@@ -53,7 +53,7 @@ for(i in 1:length(results_files)){
   results[[i]] <- tmp
 }
 
-results <- do.call("rbind", results)
+results <- do.call("rbind", results) |> filter(feature_set == "User")
 rm(results_files, i, tmp)
 
 #------------- Find problems where FTM outperforms chance --------------
