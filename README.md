@@ -24,3 +24,4 @@ Scripts should be run in the following order:
 4. `interpretation/ftm-vs-chance.R` (R)
 5. `interpretation/ftm-vs-catch24.R` (R)
 6. `interpretation/ftm-case-studies.R` (R)
+7. `interpretation/ftm-vs-catch24-avg-abs.R` (R)
