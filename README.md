@@ -3,6 +3,24 @@ This repository holds analysis for our [working paper](https://arxiv.org/abs/230
 
 ## Reproducibility
 
-This project is set up using a modular structure. As it uses an `R` project as its basis, the entire analysis can be reproduced by running `driver.R` which calls the necessary scripts in order to build the project end-to-end. Note that some of the scripts require data to be downloaded and within a specific filepath (such as `analysis/compute-features.R` which calls a function defined in `R/tidy_arff_files.R` that requires the datasets to be in the `data/` folder) so please check you have these first before sourcing `driver.R`.
-
 For the neuroimaging case study involving schizophrenia (SCZ) case--control classification, all analysis and visualization can be reproduced using the interactive Jupyter notebook [schizophrenia_case_study.ipynb](https://github.com/hendersontrent/mean-var-ts-classify/blob/main/analysis/schizophrenia_case_study.ipynb).
+
+For the UEA/UCR Repository analysis, see below.
+
+## FTM UEA/UCR Repository analysis
+
+The repository is organised into sub folders, each of which contains a discrete part of this analysis:
+
+* `data` -- contains the time-series data and class labels for the train and test splits for each problem (i.e., the outputs of `get-uea-ucr-datasets.py`). *NOTE: This folder is not pushed to git for size reasons.*
+* `feature-calculations` -- contains R scripts to calculate features for each problem as well as the resulting feature objects stored as `.Rda` files
+* `classification-models` -- contains R scripts to calculate classification performance of each feature set for each problem as well as the resulting classification objects stored as `.csv` files
+* `interpretation` -- contains R scripts which analyse the results computed in `feature-calculations` and `classification-models`
+
+Scripts should be run in the following order:
+
+1. `get-uea-ucr-datasets.py` (Python)
+2. `feature-calculations/calculate-features.R` (R)
+3. `classification-models/fit-models.R` (R)
+4. `interpretation/ftm-vs-chance.R` (R)
+5. `interpretation/ftm-vs-catch24.R` (R)
+6. `interpretation/ftm-case-studies.R` (R)
