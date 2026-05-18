@@ -42,7 +42,3 @@ source("analysis/mean-and-var-case-studies.R")
 # Compare classification performance between mean + variance and catch24
 
 source("analysis/compare-catch2-catch24.R")
-
-#---------------- Schizophrenia case study ------------
-
-source("analysis/schizophrenia_case_study.R")
