@@ -62,7 +62,7 @@ p <- gunpoint |>
 print(p)
 
 text_df <- data.frame(x = c(2.5),
-                      y = c(8.07),
+                      y = c(8.7),
                       label = c("B"))
 
 p1 <- insect |>
