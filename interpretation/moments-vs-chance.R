@@ -116,15 +116,22 @@ p1 <- results |>
   inner_join(chances, by = c("problem" = "problem")) |>
   mutate(chance = chance * 100) |>
   mutate(delta = accuracy - chance) |>
+  mutate(feature_set = case_when(
+          feature_set == "Moment 1"        ~ "Mean",
+          feature_set == "Moments 1,2"     ~ "Mean + variance",
+          feature_set == "Moments 1,2,3"   ~ "Mean + variance +\nskewness",
+          feature_set == "Moments 1,2,3,4" ~ "Mean + variance +\nskewness +\nkurtosis")) |>
   ggplot(aes(x = feature_set, y = delta, fill = feature_set)) + 
   geom_boxplot(alpha = 0.9, colour = "black") +
   geom_hline(aes(yintercept = 0), colour = "black", linewidth = 0.9, linetype = "dashed") +
   labs(x = "Feature set", 
-       y = TeX(r"($\Delta_{Raw \, accuracy}$)"),
+       y = "Difference in raw classification accuracy (%) relative to chance",
+       #y = TeX(r"($\Delta_{Raw \, accuracy}$)"),
        fill = NULL) +
   scale_y_continuous(labels = function(x)paste0(x, "%")) +
-  scale_fill_manual(values = c("Moment 1" = dark2[1], "Moments 1,2" = dark2[2],
-                                 "Moments 1,2,3" = dark2[3], "Moments 1,2,3,4" = dark2[4])) +
+  scale_fill_manual(values = c("Mean" = dark2[1], "Mean + variance" = dark2[2],
+                                 "Mean + variance +\nskewness" = dark2[3], 
+                               "Mean + variance +\nskewness +\nkurtosis" = dark2[4])) +
   theme_minimal() +
   theme(legend.position = "none",
         strip.background = element_blank(),
