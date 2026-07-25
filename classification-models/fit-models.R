@@ -284,4 +284,4 @@ fit_models <- function(problem, N = 1, seed = 123){
 # Run the classifiers
 
 gsub(".Rda", "\\1", list.files("feature-calculations/features")) |>
-  purrr::map_dfr(~fit_models(problem = .x, N = 30, seed = 123))
+  purrr::map_dfr(~fit_models(problem = .x, N = 100, seed = 123))

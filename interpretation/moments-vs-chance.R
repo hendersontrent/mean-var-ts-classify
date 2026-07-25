@@ -63,6 +63,7 @@ rm(results_files, i, tmp)
 # Order problems by mean accuracy
 
 means <- results |>
+  filter(feature_set == "Moments 1,2") |>
   reframe(.mean = mean(accuracy), .by = "problem")
 
 # Draw plot
@@ -70,12 +71,14 @@ means <- results |>
 dark2 <- RColorBrewer::brewer.pal(8, "Dark2")
 
 p <- results |>
+  filter(feature_set == "Moments 1,2") |>
   mutate(accuracy = accuracy * 100) |>
   inner_join(means, by = c("problem" = "problem")) |>
   inner_join(chances, by = c("problem" = "problem")) |>
   mutate(chance = chance * 100) |>
+  mutate(feature_set = "Moments 1 and 2") |>
   ggplot(aes(x = reorder(problem, .mean))) +
-  geom_point(aes(y = chance, colour = "Chance probability", shape = "Chance probability"), size = 1) +
+  geom_point(aes(y = chance, colour = "Chance probability", shape = "Chance probability"), size = 2) +
   stat_summary(aes(y = accuracy, colour = feature_set, group = feature_set), geom = "errorbar",
                fun.data = mean_cl_normal, fun.args = list(conf.int = 0.95)) +
   stat_summary(aes(y = accuracy, colour = feature_set, shape = feature_set, group = feature_set),
@@ -87,20 +90,15 @@ p <- results |>
                      breaks = seq(from = 0, to = 100, by = 20),
                      labels = function(x)paste0(x, "%")) +
   scale_color_manual(name = "Type",
-                     breaks = c("Chance probability", "Moment 1", "Moments 1,2", "Moments 1,2,3", "Moments 1,2,3,4"),
-                     labels = c("Chance probability", "Mean accuracy of Moment 1", "Mean accuracy of Moments 1,2",
-                                "Mean accuracy of Moments 1,2,3", "Mean accuracy of Moments 1,2,3,4"),
-                     values = c("Chance probability" = "black", "Moment 1" = dark2[1], "Moments 1,2" = dark2[2],
-                                "Moments 1,2,3" = dark2[3], "Moments 1,2,3,4" = dark2[4])) +
+                     breaks = c("Chance probability", "Moments 1 and 2"),
+                     labels = c("Chance probability", "Mean accuracy of Moments 1 and 2"),
+                     values = c("Chance probability" = "black", "Moments 1 and 2" = dark2[1])) +
   scale_shape_manual(name = "Type",
-                     breaks = c("Chance probability", "Moment 1", "Moments 1,2", "Moments 1,2,3", "Moments 1,2,3,4"),
-                     labels = c("Chance probability", "Mean accuracy of Moment 1", "Mean accuracy of Moments 1,2",
-                                "Mean accuracy of Moments 1,2,3", "Mean accuracy of Moments 1,2,3,4"),
-                     values = c("Chance probability" = 3, "Moment 1" = 16, "Moments 1,2" = 16, 
-                                "Moments 1,2,3" = 16, "Moments 1,2,3,4" = 16)) +
+                     breaks = c("Chance probability", "Moments 1 and 2"),
+                     labels = c("Chance probability", "Mean accuracy of Moments 1 and 2"),
+                     values = c("Chance probability" = 3, "Moments 1 and 2" = 16)) +
   coord_flip() +
   theme_minimal() +
-  guides(color = guide_legend(nrow = 2, byrow = TRUE)) +
   theme(panel.grid.minor = element_blank(),
         legend.position = "bottom",
         legend.title = element_blank(),
@@ -133,19 +131,52 @@ p1 <- results |>
         strip.text = element_text(face = "bold"))
 
 print(p1)
-ggsave("output/moments-dists.pdf", plot = p1, units = "in", height = 6, width = 6)
+ggsave("output/moments-dists.pdf", plot = p1, units = "in", height = 6, width = 11)
 
 #------------- Summary statistics for main text --------------
 
+# Get train-test split sizes
+
+get_split_sizes <- function(){
+  the_files <- gsub("\\.Rda", "\\1", list.files("feature-calculations/features/"))
+  storage <- vector(mode = "list", length = length(the_files))
+  
+  for(i in 1:length(the_files)){
+    problem <- the_files[i]
+    storage[[i]] <- data.frame(
+      problem = problem,
+      n_train = nrow(read.csv(paste0("data/", problem, "/", problem, "_train_y.csv"))),
+      n_test  = nrow(read.csv(paste0("data/", problem, "/", problem, "_test_y.csv")))
+    )
+  }
+  
+  do.call("rbind", storage)
+}
+
+split_sizes <- get_split_sizes()
+
+# Compute statistical tests
+
 benchmark_keepers <- results |>
-  filter(feature_set == "Moments 1,2") |>
+  filter(feature_set == "Moments 1,2,3,4") |>
   left_join(chances, by = c("problem" = "problem")) |>
+  left_join(split_sizes, by = c("problem" = "problem")) |>
   reframe(
-    p.value = wilcox.test(accuracy, mu = unique(chance), alternative = "greater")$p.value,
+    mu = mean(accuracy, na.rm = TRUE),
+    sigma2 = var(accuracy, na.rm = TRUE), # Unbiased, denominator = n-1
+    n = sum(!is.na(accuracy)),
+    chance = unique(chance),
+    rho = unique(n_test) / unique(n_train), # n2 / n1
     .by = "problem"
+  ) |>
+  mutate(
+    se = sqrt(sigma2 * (1 / n + rho)), # Nadeau & Bengio (2003) correction
+    t.stat = (mu - chance) / se,
+    p.value = pt(t.stat, df = n - 1, lower.tail = FALSE) # One-sided test: H1 accuracy > chance
   ) |>
   mutate(category = ifelse(p.value <= 0.05, "Significant", "Non-significant")) |>
   dplyr::select(problem, p.value, category)
+
 
 # Total significant problems (FTM vs chance)
 
