@@ -165,7 +165,7 @@ split_sizes <- get_split_sizes()
 # Compute statistical tests
 
 benchmark_keepers <- results |>
-  filter(feature_set == "Moments 1,2,3,4") |>
+  filter(feature_set == "Moments 1,2") |>
   left_join(chances, by = c("problem" = "problem")) |>
   left_join(split_sizes, by = c("problem" = "problem")) |>
   reframe(
