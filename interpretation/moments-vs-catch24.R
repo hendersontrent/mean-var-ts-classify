@@ -75,12 +75,12 @@ find_winner <- function(data, theproblem, set1name, problem_data){
     # Set up vectors
     
     x <- as.vector(unlist(tmp2[, "catch22"]))
-    y <- as.vector(unlist(tmp2[, "User"]))
+    y <- as.vector(unlist(tmp2[, "Moments1234"]))
     
     # Do calcs
     
     set1_name <- "catch22"
-    set2_name <- "User"
+    set2_name <- "Moments1234"
     
     t_test <- correctR::resampled_ttest(x = x, y = y, n = 100, 
                                         n1 = as.integer(params$Train), n2 = as.integer(params$Test),
@@ -174,6 +174,10 @@ h2h <- function(){
   }
   
   results <- do.call("rbind", results)
+  
+  results <- results |> 
+    filter(feature_set %in% c("catch22", "Moments 1,2,3,4")) |> 
+    mutate(feature_set = ifelse(feature_set == "Moments 1,2,3,4", "Moments1234", "catch22"))
   
   # Generate pairwise combinations and map over all of them
   

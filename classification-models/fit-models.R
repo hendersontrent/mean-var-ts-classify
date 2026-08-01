@@ -81,6 +81,54 @@ generate_resample_indx <- function(features, train_counts, test_counts){
   return(list(train_ids = train_ids, test_ids = test_ids))
 }
 
+#' Function to partition features into MECE moments feature 'sets'
+#' 
+#' @param feature_data \code{data.frame} of feature data
+#' @return \code{data.frame} of results
+#' @author Trent Henderson
+#'
+
+partition <- function(feature_data){
+  
+  # Mean
+  
+  moment1 <- feature_data |>
+    filter(feature_set == "moments") |>
+    filter(names == "mean") |>
+    mutate(feature_set = "Moment 1")
+  
+  # Mean and variance
+  
+  moment12 <- feature_data |>
+    filter(feature_set == "moments") |>
+    filter(names %in% c("mean", "variance")) |>
+    mutate(feature_set = "Moments 1,2")
+  
+  # Mean, variance, and skewness
+  
+  moment123 <- feature_data |>
+    filter(feature_set == "moments") |>
+    filter(names %in% c("mean", "variance", "skewness")) |>
+    mutate(feature_set = "Moments 1,2,3")
+  
+  # Mean, variance, skewness, and kurtosis
+  
+  moment1234 <- feature_data |>
+    filter(feature_set == "moments") |>
+    filter(names %in% c("mean", "variance", "skewness", "kurtosis")) |>
+    mutate(feature_set = "Moments 1,2,3,4")
+  
+  # catch22
+  
+  catch22 <- feature_data |>
+    filter(feature_set == "catch22")
+  
+  #---------- Bind together ---------
+  
+  bound <- bind_rows(moment1, moment12, moment123, moment1234, catch22)
+  return(bound)
+}
+
 #' Function that can iterate over problems and save outputs
 #' 
 #' @param problem \code{character} denoting the dataset to work on
@@ -108,14 +156,15 @@ fit_models <- function(problem, N = 1, seed = 123){
     load(paste0("feature-calculations/features/", problem, ".Rda"))
     load(paste0("feature-calculations/train-test-labels/", problem, ".Rda"))
     
-    feature_sets <- unique(features$feature_set)
-    
     label <- label |> 
       dplyr::select(-c(problem)) |>
       dplyr::distinct() # Fixed upstream in code in feature-calculations/calculate-features.R but I had already run everything...
     
     features <- features |>
       dplyr::inner_join(label, by = c("id" = "id"))
+    
+    features <- partition(features)
+    feature_sets <- unique(features$feature_set)
     
     # Parse into canonical train-test split
     
@@ -235,4 +284,4 @@ fit_models <- function(problem, N = 1, seed = 123){
 # Run the classifiers
 
 gsub(".Rda", "\\1", list.files("feature-calculations/features")) |>
-  purrr::map_dfr(~fit_models(problem = .x, N = 30, seed = 123))
+  purrr::map_dfr(~fit_models(problem = .x, N = 100, seed = 123))

@@ -82,8 +82,7 @@ calculate_uea_ucr_features <- function(problem){
        features <- try(
          calculate_features(
            tsbl,
-           feature_set = "catch22",
-           features = list("mean" = mean, "sd" = sd),
+           feature_set = c("catch22", "moments"),
            catch24 = TRUE,
            z_score = FALSE,
            warn = FALSE,
