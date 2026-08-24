@@ -176,8 +176,8 @@ h2h <- function(){
   results <- do.call("rbind", results)
   
   results <- results |> 
-    filter(feature_set %in% c("catch22", "Moments 1,2,3,4")) |> 
-    mutate(feature_set = ifelse(feature_set == "Moments 1,2,3,4", "Moments1234", "catch22"))
+    filter(feature_set %in% c("catch22", "Moments 1,2")) |> 
+    mutate(feature_set = ifelse(feature_set == "Moments 1,2", "Moments12", "catch22"))
   
   # Generate pairwise combinations and map over all of them
   
