@@ -15,7 +15,7 @@ library(latex2exp)
 
 #--------------- Get chance probabilities ---------------
 
-#' Function to load all UEA/UCR datasets that has been saved from `aeon` in Python and get the chance probability
+#' Function to load all UEA/UCR datasets and get the chance probability
 #'
 #' @return \code{data.frame} containing the summary statistics
 #' @author Trent Henderson
@@ -33,10 +33,13 @@ get_chance_probability <- function(){
     # Pull labels from saved format
     
     train_y <- read.csv(paste0("data/", problem, "/", problem, "_train_y.csv"))
+    test_y <- read.csv(paste0("data/", problem, "/", problem, "_test_y.csv"))
     
-    # Calculate chance probability
+    # Calculate uniform chance and no information rate chance probabilities
     
-    storage[[i]] <- data.frame(problem = problem, chance = 1 / length(unique(train_y$target)))
+    storage[[i]] <- data.frame(problem = problem,
+                               unif_chance = 1 / length(unique(train_y$target)),
+                               chance = max(table(test_y$target)) / nrow(test_y))
   }
   
   storage <- do.call("rbind", storage)
@@ -107,7 +110,7 @@ p <- results |>
         axis.title = element_text(size = 16))
 
 print(p)
-ggsave("output/moments-vs-chance.pdf", plot = p, units = "in", height = 20, width = 14)
+ggsave("output/moments-vs-chance-not-unif.pdf", plot = p, units = "in", height = 20, width = 14)
 
 # Draw boxplot
 
@@ -117,20 +120,19 @@ p1 <- results |>
   mutate(chance = chance * 100) |>
   mutate(delta = accuracy - chance) |>
   mutate(feature_set = case_when(
-          feature_set == "Moment 1"        ~ "Mean",
-          feature_set == "Moments 1,2"     ~ "Mean + variance",
-          feature_set == "Moments 1,2,3"   ~ "Mean + variance +\nskewness",
-          feature_set == "Moments 1,2,3,4" ~ "Mean + variance +\nskewness +\nkurtosis")) |>
+    feature_set == "Moment 1"        ~ "Mean",
+    feature_set == "Moments 1,2"     ~ "Mean + variance",
+    feature_set == "Moments 1,2,3"   ~ "Mean + variance +\nskewness",
+    feature_set == "Moments 1,2,3,4" ~ "Mean + variance +\nskewness +\nkurtosis")) |>
   ggplot(aes(x = feature_set, y = delta, fill = feature_set)) + 
   geom_boxplot(alpha = 0.9, colour = "black") +
   geom_hline(aes(yintercept = 0), colour = "black", linewidth = 0.9, linetype = "dashed") +
   labs(x = "Feature set", 
-       y = "Difference in raw classification accuracy (%) relative to chance",
-       #y = TeX(r"($\Delta_{Raw \, accuracy}$)"),
+       y = TeX(r"($\Delta$ in raw classification accuracy (%) relative to chance)"),
        fill = NULL) +
   scale_y_continuous(labels = function(x)paste0(x, "%")) +
   scale_fill_manual(values = c("Mean" = dark2[1], "Mean + variance" = dark2[2],
-                                 "Mean + variance +\nskewness" = dark2[3], 
+                               "Mean + variance +\nskewness" = dark2[3], 
                                "Mean + variance +\nskewness +\nkurtosis" = dark2[4])) +
   theme_minimal() +
   theme(legend.position = "none",
@@ -138,7 +140,7 @@ p1 <- results |>
         strip.text = element_text(face = "bold"))
 
 print(p1)
-ggsave("output/moments-dists.pdf", plot = p1, units = "in", height = 6, width = 11)
+ggsave("output/moments-dists-not-unif.pdf", plot = p1, units = "in", height = 7, width = 11)
 
 #------------- Summary statistics for main text --------------
 
@@ -190,3 +192,8 @@ benchmark_keepers <- results |>
 benchmark_keepers |>
   reframe(counter = n(), .by = "category") |>
   mutate(props = counter / sum(counter))
+
+# Calculate average performance
+
+set_means <- results |>
+  reframe(.mean = mean(accuracy), .by = "feature_set")
